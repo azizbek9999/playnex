@@ -1,0 +1,359 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLAYNEX - MILLIONER</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ background:radial-gradient(ellipse at top,#192b70,#080b22 65%);
+ color:#fff;font-family:Arial,sans-serif;min-height:100vh;
+}
+header{
+ height:62px;background:#10183d;border-bottom:2px solid #e5b94f;
+ display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+}
+header b{font-size:24px;letter-spacing:2px;color:#ffe18b}
+header button{background:none;border:0;color:white;font-size:27px;cursor:pointer}
+.container{max-width:1050px;margin:auto;padding:14px}
+.top{text-align:center;margin:12px 0 18px}
+.top h1{color:#ffdc76;font-size:32px;text-shadow:0 0 18px #e9a62e}
+.top p{color:#c8d3ff;margin-top:6px;font-size:13px}
+.game{
+ display:grid;grid-template-columns:1fr 245px;gap:14px;
+}
+.main{
+ background:linear-gradient(145deg,#17255d,#101538);
+ border:2px solid #d4a746;border-radius:18px;padding:17px;
+ box-shadow:0 0 30px #668aff24;
+}
+.progress{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:8px;margin-bottom:15px;color:#ffdc76;font-weight:bold;font-size:13px;
+}
+.progress-line{height:7px;background:#080d2b;border-radius:10px;overflow:hidden;margin-bottom:18px}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#e69e25,#ffe58d);transition:width .4s}
+.question{
+ min-height:115px;background:linear-gradient(135deg,#293d87,#172455);
+ border:1px solid #8ea4ff;border-radius:14px;padding:22px 14px;
+ display:flex;align-items:center;justify-content:center;text-align:center;
+ font-size:clamp(18px,3vw,25px);font-weight:bold;line-height:1.5;
+}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:17px}
+.answer{
+ min-height:65px;border:1px solid #7b91e5;border-radius:12px;
+ background:linear-gradient(135deg,#233675,#17224c);
+ color:white;padding:12px;text-align:left;cursor:pointer;
+ font-size:15px;transition:.2s;
+}
+.answer:hover:not(:disabled){background:#354c9c;transform:translateY(-2px)}
+.answer b{color:#ffd66c;margin-right:8px}
+.answer.correct{background:#176d48;border:2px solid #5bffb0}
+.answer.wrong{background:#8c2437;border:2px solid #ff879b}
+.answer:disabled{cursor:default}
+.lifelines{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:17px}
+.help{
+ background:#251c58;border:1px solid #d3ae5b;color:#ffe39a;
+ border-radius:25px;padding:11px 5px;font-size:12px;font-weight:bold;cursor:pointer;
+}
+.help:disabled{opacity:.3;cursor:default}
+.ladder{
+ background:linear-gradient(145deg,#151e4a,#0c1230);
+ border:2px solid #d3a748;border-radius:16px;padding:12px;
+}
+.ladder h3{text-align:center;color:#ffdb76;margin-bottom:10px}
+.level{
+ padding:8px 9px;margin:4px 0;border-radius:7px;
+ display:flex;justify-content:space-between;font-size:13px;
+ color:#d6defe;background:#17234d;
+}
+.level.safe{color:#ffdb76;font-weight:bold}
+.level.active{background:#b57a20;color:#fff;font-weight:bold;box-shadow:0 0 12px #ffc44b}
+.modal-bg{
+ position:fixed;inset:0;background:#05091bea;z-index:10;
+ display:flex;align-items:center;justify-content:center;padding:15px;
+}
+.modal{
+ width:100%;max-width:430px;background:linear-gradient(145deg,#243a85,#111638);
+ border:2px solid #e2b64e;border-radius:20px;padding:24px 18px;text-align:center;
+ box-shadow:0 0 35px #7192ff55;animation:pop .3s ease;
+}
+.modal h2{color:#ffdf7c;margin-bottom:12px}
+.modal p{line-height:1.7;font-size:14px;margin:12px 0}
+.modal button{
+ background:linear-gradient(#ffe7a0,#e9b448);border:0;
+ color:#1b1740;border-radius:10px;padding:13px 22px;
+ font-weight:bold;cursor:pointer;margin:6px;
+}
+.modal-icon{font-size:60px;margin:12px}
+.hidden{display:none!important}
+.note{text-align:center;color:#aeb9e5;font-size:11px;padding:20px}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+@media(max-width:720px){
+ .game{grid-template-columns:1fr}
+ .ladder{order:2}
+ .ladder-list{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+ .level{font-size:11px;padding:7px 4px;gap:3px}
+ .main{padding:10px}
+ .answers{gap:7px}
+ .answer{font-size:13px;min-height:65px;padding:9px 6px}
+ .top h1{font-size:27px}
+}
+</style>
+</head>
+<body>
+
+<header>
+<button onclick="location.href='index.html'">‹</button>
+<b>👑 PLAYNEX</b>
+<button onclick="location.href='index.html'">×</button>
+</header>
+
+<div class="container">
+ <div class="top">
+  <h1>🧠 MILLIONER</h1>
+  <p>Bilimingizni sinang va katta yutuqqa erishing!</p>
+ </div>
+
+ <div class="game">
+  <div class="main">
+   <div class="progress">
+    <span id="qNumber">1 / 15-savol</span>
+    <span id="score">0 so‘m</span>
+   </div>
+   <div class="progress-line"><div class="progress-fill" id="progress"></div></div>
+   <div class="question" id="question">O‘yinni boshlashga tayyormisiz?</div>
+   <div class="answers" id="answers"></div>
+
+   <div class="lifelines">
+    <button class="help" id="fifty" onclick="useFifty()">⚖️ 50:50</button>
+    <button class="help" id="call" onclick="useCall()">☎️ Do‘stga qo‘ng‘iroq</button>
+    <button class="help" id="audience" onclick="useAudience()">👥 Zal yordami</button>
+   </div>
+   <div class="note" id="status">Omad sizga yor bo‘lsin!</div>
+  </div>
+
+  <div class="ladder">
+   <h3>🏆 Yutuqlar</h3>
+   <div class="ladder-list" id="ladder"></div>
+  </div>
+ </div>
+</div>
+
+<div class="modal-bg" id="intro">
+ <div class="modal">
+  <h2>👑 MILLIONERGA XUSH KELIBSIZ!</h2>
+  <div class="modal-icon">🧠💰🏆</div>
+  <p>15 ta savolga to‘g‘ri javob bering. Uchta yordam imkoniyatidan foydalaning va eng yuqori bosqichga chiqing!</p>
+  <button onclick="startGame()">🎮 O‘YINNI BOSHLASH</button>
+ </div>
+</div>
+
+<div class="modal-bg hidden" id="helpModal">
+ <div class="modal">
+  <h2 id="helpTitle">Yordam</h2>
+  <div class="modal-icon" id="helpIcon">☎️</div>
+  <p id="helpText"></p>
+  <button onclick="closeHelp()">TUSHUNDIM</button>
+ </div>
+</div>
+
+<div class="modal-bg hidden" id="resultModal">
+ <div class="modal">
+  <h2 id="resultTitle">🏆 TABRIKLAYMIZ!</h2>
+  <div class="modal-icon" id="resultIcon">🎉</div>
+  <p id="resultText"></p>
+  <button onclick="restartGame()">🔁 QAYTA O‘YNASH</button>
+  <button onclick="location.href='index.html'">MENYUGA QAYTISH</button>
+ </div>
+</div>
+
+<script>
+const questions=[
+ {q:"O‘zbekiston poytaxti qaysi shahar?",a:["Samarqand","Toshkent","Buxoro","Xiva"],c:1},
+ {q:"Bir haftada necha kun bor?",a:["5","6","7","8"],c:2},
+ {q:"Quyosh qaysi tomondan chiqadi?",a:["G‘arb","Shimol","Sharq","Janub"],c:2},
+ {q:"O‘zbekiston bayrog‘ida nechta rang bor?",a:["3","4","5","6"],c:1},
+ {q:"Eng katta okean qaysi?",a:["Atlantika","Hind","Shimoliy Muz","Tinch"],c:3},
+ {q:"Yerning tabiiy yo‘ldoshi nima?",a:["Mars","Oy","Quyosh","Venera"],c:1},
+ {q:"O‘zbekiston mustaqilligi qachon e’lon qilingan?",a:["1990-yil","1991-yil","1992-yil","1993-yil"],c:1},
+ {q:"Suvning kimyoviy formulasi qaysi?",a:["CO2","O2","H2O","NaCl"],c:2},
+ {q:"Dunyodagi eng baland tog‘ cho‘qqisi qaysi?",a:["Elbrus","Everest","Kilimanjaro","Mont-Blan"],c:1},
+ {q:"Amir Temur qaysi yilda tug‘ilgan?",a:["1336","1405","1395","1300"],c:0},
+ {q:"Inson tanasida nechta yurak bor?",a:["2","3","1","4"],c:2},
+ {q:"Kompyuterning asosiy hisoblash qurilmasi nima?",a:["Monitor","Protsessor","Klaviatura","Sichqoncha"],c:1},
+ {q:"Yorug‘lik tezligi taxminan qancha?",a:["30 ming km/s","150 ming km/s","300 ming km/s","500 ming km/s"],c:2},
+ {q:"Dunyodagi eng katta sayyora qaysi?",a:["Yer","Saturn","Yupiter","Mars"],c:2},
+ {q:"O‘zbekistonning eng uzun daryolaridan biri qaysi?",a:["Nil","Amazonka","Amudaryo","Volga"],c:2}
+];
+
+const rewards=[
+ "1 000","2 000","5 000","10 000","20 000",
+ "50 000","100 000","200 000","300 000","500 000",
+ "1 000 000","2 000 000","5 000 000","10 000 000","50 000 000"
+];
+
+let current=0,earned=0,used={fifty:false,call:false,audience:false};
+let locked=false,hiddenAnswers=[];
+
+function money(n){return rewards[n-1]+" so‘m"}
+
+function buildLadder(){
+ const el=document.getElementById("ladder");
+ el.innerHTML="";
+ rewards.forEach((r,i)=>{
+  const n=i+1;
+  const div=document.createElement("div");
+  div.className="level"+([4,9,14].includes(i)?" safe":"");
+  div.id="level"+i;
+  div.innerHTML="<span>"+n+". savol</span><b>"+r+"</b>";
+  el.prepend(div);
+ });
+}
+
+function updateLadder(){
+ rewards.forEach((r,i)=>{
+  const e=document.getElementById("level"+i);
+  e.classList.toggle("active",i===current);
+ });
+}
+
+function startGame(){
+ document.getElementById("intro").classList.add("hidden");
+ current=0;earned=0;locked=false;
+ used={fifty:false,call:false,audience:false};
+ ["fifty","call","audience"].forEach(id=>document.getElementById(id).disabled=false);
+ buildLadder();
+ showQuestion();
+}
+
+function showQuestion(){
+ locked=false;
+ const q=questions[current];
+ document.getElementById("qNumber").textContent=(current+1)+" / 15-savol";
+ document.getElementById("score").textContent=earned?money(earned):"0 so‘m";
+ document.getElementById("progress").style.width=(current/15*100)+"%";
+ document.getElementById("question").textContent=q.q;
+ document.getElementById("status").textContent="Javob variantini tanlang!";
+ const area=document.getElementById("answers");
+ area.innerHTML="";
+ hiddenAnswers=[];
+ q.a.forEach((answer,i)=>{
+  const b=document.createElement("button");
+  b.className="answer";
+  b.innerHTML="<b>"+String.fromCharCode(65+i)+")</b>"+answer;
+  b.onclick=()=>chooseAnswer(i,b);
+  area.appendChild(b);
+ });
+ updateLadder();
+}
+
+function chooseAnswer(index,button){
+ if(locked)return;
+ locked=true;
+ const q=questions[current];
+ const buttons=[...document.querySelectorAll(".answer")];
+ buttons.forEach(b=>b.disabled=true);
+ if(index===q.c){
+  button.classList.add("correct");
+  earned=current+1;
+  document.getElementById("status").textContent="🎉 To‘g‘ri javob! Barakalla!";
+  document.getElementById("score").textContent=money(earned);
+  setTimeout(()=>{
+   if(current===14)finish(true);
+   else{
+    current++;
+    showQuestion();
+   }
+  },1200);
+ }else{
+  button.classList.add("wrong");
+  buttons[q.c].classList.add("correct");
+  document.getElementById("status").textContent="❌ Noto‘g‘ri javob!";
+  setTimeout(()=>finish(false),1400);
+ }
+}
+
+function useFifty(){
+ if(used.fifty||locked)return;
+ used.fifty=true;
+ document.getElementById("fifty").disabled=true;
+ const correct=questions[current].c;
+ let wrong=[0,1,2,3].filter(i=>i!==correct);
+ wrong.sort(()=>Math.random()-.5);
+ hiddenAnswers=wrong.slice(0,2);
+ document.querySelectorAll(".answer").forEach((b,i)=>{
+  if(hiddenAnswers.includes(i)){
+   b.disabled=true;b.style.visibility="hidden";
+  }
+ });
+ document.getElementById("status").textContent="50:50 ishlatildi!";
+}
+
+function showHelp(title,icon,text){
+ document.getElementById("helpTitle").textContent=title;
+ document.getElementById("helpIcon").textContent=icon;
+ document.getElementById("helpText").textContent=text;
+ document.getElementById("helpModal").classList.remove("hidden");
+}
+
+function useCall(){
+ if(used.call||locked)return;
+ used.call=true;
+ document.getElementById("call").disabled=true;
+ const correct=questions[current].c;
+ const suggestion=Math.random()<.8?correct:Math.floor(Math.random()*4);
+ showHelp("☎️ Do‘st bilan suhbat","📞",
+ "Do‘stingiz shunday maslahat berdi: menimcha, "+String.fromCharCode(65+suggestion)+" javob to‘g‘ri. Lekin yakuniy qaror o‘zingizniki!");
+}
+
+function useAudience(){
+ if(used.audience||locked)return;
+ used.audience=true;
+ document.getElementById("audience").disabled=true;
+ const correct=questions[current].c;
+ let percentages=[10,10,10,10];
+ percentages[correct]=55;
+ let rest=45;
+ for(let i=0;i<4;i++){
+  if(i!==correct){
+   let n=Math.floor(rest/3);
+   percentages[i]=n;
+   rest-=n;
+  }
+ }
+ showHelp("👥 Zaldan yordam","🙋",
+ "Tomoshabinlar ovozi:\nA: "+percentages[0]+"%\nB: "+percentages[1]+"%\nC: "+percentages[2]+"%\nD: "+percentages[3]+"%\n\nKo‘pchilik "+String.fromCharCode(65+correct)+" javobni tanladi!");
+}
+
+function closeHelp(){
+ document.getElementById("helpModal").classList.add("hidden");
+}
+
+function finish(won){
+ let amount=earned?money(earned):"0 so‘m";
+ if(won){
+  document.getElementById("resultTitle").textContent="🏆 SIZ G‘OLIBSIZ!";
+  document.getElementById("resultIcon").textContent="👑🎉";
+  document.getElementById("resultText").textContent=
+   "Ajoyib! Siz barcha 15 ta savolga to‘g‘ri javob berdingiz. Yakuniy virtual yutug‘ingiz: 50 000 000 so‘m!";
+ }else{
+  let safe=earned>=10?10:earned>=5?5:0;
+  document.getElementById("resultTitle").textContent="🎮 O‘YIN YAKUNLANDI";
+  document.getElementById("resultIcon").textContent="💰";
+  document.getElementById("resultText").textContent=
+   "Siz "+(current+1)+"-savolda to‘xtadingiz. Oxirgi to‘g‘ri javobingiz: "+amount+". Kafolatlangan bosqich bo‘yicha virtual natija: "+(safe?money(safe):"0 so‘m")+".";
+ }
+ document.getElementById("resultModal").classList.remove("hidden");
+}
+
+function restartGame(){
+ document.getElementById("resultModal").classList.add("hidden");
+ startGame();
+}
+buildLadder();
+</script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLAYNEX - AVTOPoyGA</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ background:radial-gradient(circle at top,#26345c,#080d19 75%);
+ color:white;font-family:Arial,sans-serif;
+ text-align:center;padding:15px 10px 30px;
+}
+header{
+ max-width:600px;margin:auto;padding:15px;
+ background:#171e35;border:1px solid #354a78;border-radius:15px;
+}
+.logo{font-size:25px;font-weight:900;letter-spacing:2px;color:#6de7ff}
+header p{color:#b9c9e8;font-size:13px;margin-top:6px}
+h1{color:#ffd76a;margin:22px 0 7px;font-size:28px}
+.subtitle{color:#c1cce7;font-size:14px;margin-bottom:17px}
+.stats{
+ max-width:500px;margin:0 auto 14px;
+ display:flex;gap:10px;
+}
+.stat{
+ flex:1;background:#171e35;border:1px solid #354a78;
+ border-radius:12px;padding:11px;
+}
+.stat span{display:block;font-size:12px;color:#aab9da;margin-bottom:5px}
+.stat strong{font-size:22px;color:#ffe18a}
+.game-wrap{
+ width:min(94vw,430px);margin:auto;padding:8px;
+ background:linear-gradient(135deg,#59647a,#1c263a);
+ border-radius:18px;box-shadow:0 12px 30px #0009;
+}
+canvas{
+ display:block;width:100%;height:auto;
+ border-radius:12px;background:#333;
+}
+.controls{
+ max-width:430px;margin:15px auto 0;
+ display:flex;justify-content:center;gap:18px;
+}
+.control-btn{
+ width:100px;height:65px;border:1px solid #6479a8;
+ border-radius:15px;background:#202d4b;color:white;
+ font-size:27px;font-weight:bold;
+ touch-action:none;user-select:none;
+}
+.control-btn:active{background:#3b5791;transform:scale(.96)}
+.actions{
+ max-width:430px;margin:14px auto 0;
+ display:flex;gap:10px;
+}
+.actions button{
+ flex:1;padding:14px 8px;border:0;border-radius:11px;
+ font-size:15px;font-weight:bold;cursor:pointer;
+}
+#startBtn{background:linear-gradient(90deg,#ffe47b,#ffb52e);color:#241b08}
+#pauseBtn{background:#286b78;color:white}
+#startBtn:disabled{opacity:.55}
+.message{
+ max-width:430px;margin:13px auto;min-height:25px;
+ color:#d1ddf2;font-size:14px;line-height:1.5;
+}
+.back{
+ display:inline-block;margin-top:14px;color:#6de7ff;
+ text-decoration:none;font-weight:bold;
+}
+.help{
+ max-width:430px;margin:15px auto 0;padding:14px;
+ background:#171e35;border:1px solid #354a78;
+ border-radius:13px;color:#bac9e5;font-size:13px;line-height:1.7;
+}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="logo">PLAYNEX</div>
+ <p>O‘yinlar olamiga xush kelibsiz! 🎮</p>
+</header>
+
+<h1>🏎️ AVTOPoyGA</h1>
+<p class="subtitle">Raqib mashinalardan qoch va marraga yet!</p>
+
+<div class="stats">
+ <div class="stat">
+  <span>🏆 OCHKO</span>
+  <strong id="score">0</strong>
+ </div>
+ <div class="stat">
+  <span>⚡ TEZLIK</span>
+  <strong id="speed">1</strong>
+ </div>
+ <div class="stat">
+  <span>🥇 REKORD</span>
+  <strong id="best">0</strong>
+ </div>
+</div>
+
+<div class="game-wrap">
+ <canvas id="game" width="420" height="650"></canvas>
+</div>
+
+<div class="controls">
+ <button class="control-btn" id="leftBtn">⬅️</button>
+ <button class="control-btn" id="rightBtn">➡️</button>
+</div>
+
+<div class="actions">
+ <button id="startBtn" onclick="startGame()">🏁 BOSHLASH</button>
+ <button id="pauseBtn" onclick="togglePause()">⏸️ PAUZA</button>
+</div>
+
+<div class="message" id="message">
+ Boshlash tugmasini bos va poygani boshlagin!
+</div>
+
+<div class="help">
+ ⬅️ ➡️ Mashinani boshqarish<br>
+ 💥 Boshqa mashinalarga urilma<br>
+ 🏆 Qancha uzoq yursang, shuncha ko‘p ochko!
+</div>
+
+<a class="back" href="index.html">⬅ PLAYNEX bosh menyusiga</a>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+const W=420,H=650;
+const roadLeft=55,roadRight=365;
+const laneWidth=(roadRight-roadLeft)/3;
+const laneCenters=[
+ roadLeft+laneWidth/2,
+ roadLeft+laneWidth*1.5,
+ roadLeft+laneWidth*2.5
+];
+
+let player={lane:1,x:laneCenters[1],y:535};
+let enemies=[];
+let score=0;
+let speed=1;
+let roadOffset=0;
+let running=false;
+let paused=false;
+let gameEnded=false;
+let lastTime=0;
+let spawnTimer=0;
+let animationId=null;
+let keys={left:false,right:false};
+let best=0;
+
+try{
+ best=Number(localStorage.getItem("playnex_race_best"))||0;
+}catch(e){best=0}
+
+document.getElementById("best").textContent=best;
+
+function roundedRect(x,y,w,h,r,color){
+ ctx.fillStyle=color;
+ ctx.beginPath();
+ ctx.roundRect(x,y,w,h,r);
+ ctx.fill();
+}
+
+function drawRoad(){
+ ctx.fillStyle="#24733d";
+ ctx.fillRect(0,0,W,H);
+
+ ctx.fillStyle="#30343d";
+ ctx.fillRect(roadLeft,0,roadRight-roadLeft,H);
+
+ ctx.fillStyle="#e8e8e8";
+ ctx.fillRect(roadLeft-5,0,5,H);
+ ctx.fillRect(roadRight,0,5,H);
+
+ ctx.fillStyle="#ffffff";
+ for(let i=1;i<=2;i++){
+  const x=roadLeft+laneWidth*i;
+  for(let y=-60+(roadOffset%100);y<H;y+=100){
+   ctx.fillRect(x-3,y,6,48);
+  }
+ }
+
+ ctx.fillStyle="#f2c94c";
+ for(let y=-40+(roadOffset%90);y<H;y+=90){
+  ctx.fillRect(roadLeft+10,y,5,35);
+  ctx.fillRect(roadRight-15,y,5,35);
+ }
+}
+
+function drawCar(x,y,color,isPlayer=false){
+ const w=48,h=82;
+
+ ctx.save();
+ ctx.translate(x,y);
+
+ // G‘ildiraklar
+ roundedRect(-w/2-5,-h/2+12,9,23,3,"#090b10");
+ roundedRect(w/2-4,-h/2+12,9,23,3,"#090b10");
+ roundedRect(-w/2-5,h/2-35,9,23,3,"#090b10");
+ roundedRect(w/2-4,h/2-35,9,23,3,"#090b10");
+
+ // Kuzov
+ roundedRect(-w/2,-h/2,w,h,11,color);
+
+ // Old oynasi
+ roundedRect(-17,-25,34,23,6,"#a9dff0");
+ roundedRect(-16,5,32,20,5,"#27475a");
+
+ // Chiroqlar
+ roundedRect(-19,-h/2+2,12,7,3,"#fff4a3");
+ roundedRect(7,-h/2+2,12,7,3,"#fff4a3");
+
+ // Orqa chiroqlar
+ roundedRect(-19,h/2-9,12,6,2,"#ff3030");
+ roundedRect(7,h/2-9,12,6,2,"#ff3030");
+
+ if(isPlayer){
+  ctx.strokeStyle="#ffe17b";
+  ctx.lineWidth=3;
+  ctx.strokeRect(-w/2-2,-h/2-2,w+4,h+4);
+ }
+ ctx.restore();
+}
+
+function drawStartScreen(){
+ drawRoad();
+ drawCar(player.x,player.y,"#08a9ee",true);
+
+ ctx.fillStyle="#ffffff";
+ ctx.textAlign="center";
+ ctx.font="bold 27px Arial";
+ ctx.fillText("PLAYNEX RACE",W/2,200);
+ ctx.font="17px Arial";
+ ctx.fillText("Poygani boshlash uchun",W/2,240);
+ ctx.fillText("BOSHLASH tugmasini bos!",W/2,268);
+}
+
+function drawGame(){
+ drawRoad();
+
+ enemies.forEach(car=>{
+  drawCar(car.x,car.y,car.color);
+ });
+
+ drawCar(player.x,player.y,"#08a9ee",true);
+}
+
+function updateStats(){
+ document.getElementById("score").textContent=Math.floor(score);
+ document.getElementById("speed").textContent=speed;
+}
+
+function spawnEnemy(){
+ const lane=Math.floor(Math.random()*3);
+ const colors=[
+  "#e43c3c","#f2bd27","#8b51d5",
+  "#e87927","#e8e8e8","#21a77b"
+ ];
+
+ const color=colors[Math.floor(Math.random()*colors.length)];
+
+ enemies.push({
+  lane,
+  x:laneCenters[lane],
+  y:-60,
+  color,
+  passed:false
+ });
+}
+
+function collision(a,b){
+ const dx=Math.abs(a.x-b.x);
+ const dy=Math.abs(a.y-b.y);
+ return dx<42&&dy<69;
+}
+
+function endGame(){
+ running=false;
+ paused=false;
+ gameEnded=true;
+
+ document.getElementById("startBtn").disabled=false;
+ document.getElementById("startBtn").textContent="🔄 QAYTA O‘YNASH";
+
+ if(Math.floor(score)>best){
+  best=Math.floor(score);
+  document.getElementById("best").textContent=best;
+  try{
+   localStorage.setItem("playnex_race_best",best);
+  }catch(e){}
+ }
+
+ document.getElementById("message").textContent=
+  "💥 O‘YIN TUGADI! Natija: "+Math.floor(score)+" ochko.";
+
+ drawGame();
+ ctx.fillStyle="#000b";
+ ctx.fillRect(0,0,W,H);
+ ctx.fillStyle="#ffdf75";
+ ctx.font="bold 34px Arial";
+ ctx.textAlign="center";
+ ctx.fillText("O‘YIN TUGADI!",W/2,260);
+ ctx.fillStyle="white";
+ ctx.font="bold 23px Arial";
+ ctx.fillText("Ochko: "+Math.floor(score),W/2,305);
+ ctx.font="17px Arial";
+ ctx.fillText("Qayta o‘ynash uchun tugmani bos",W/2,345);
+}
+
+function startGame(){
+ if(animationId!==null){
+  cancelAnimationFrame(animationId);
+  animationId=null;
+ }
+
+ player={lane:1,x:laneCenters[1],y:535};
+ enemies=[];
+ score=0;
+ speed=1;
+ roadOffset=0;
+ spawnTimer=0;
+ running=true;
+ paused=false;
+ gameEnded=false;
+ lastTime=0;
+
+ document.getElementById("startBtn").disabled=true;
+ document.getElementById("startBtn").textContent="🏁 POYGA KETDI";
+ document.getElementById("message").textContent="Omad! Raqiblardan ehtiyot bo‘l!";
+
+ updateStats();
+ animationId=requestAnimationFrame(loop);
+}
+
+function togglePause(){
+ if(!running&&!paused)return;
+
+ if(!paused){
+  paused=true;
+  running=false;
+  if(animationId!==null){
+   cancelAnimationFrame(animationId);
+   animationId=null;
+  }
+  document.getElementById("pauseBtn").textContent="▶️ DAVOM";
+  document.getElementById("message").textContent="Poyga pauzada.";
+  drawGame();
+  ctx.fillStyle="#0009";
+  ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="white";
+  ctx.font="bold 35px Arial";
+  ctx.textAlign="center";
+  ctx.fillText("PAUZA",W/2,320);
+ }else{
+  paused=false;
+  running=true;
+  lastTime=0;
+  document.getElementById("pauseBtn").textContent="⏸️ PAUZA";
+  document.getElementById("message").textContent="Poyga davom etmoqda!";
+  animationId=requestAnimationFrame(loop);
+ }
+}
+
+function movePlayer(direction){
+ if(!running||paused)return;
+ player.lane=Math.max(0,Math.min(2,player.lane+direction));
+ player.x=laneCenters[player.lane];
+ drawGame();
+}
+
+document.addEventListener("keydown",e=>{
+ if(e.key==="ArrowLeft"||e.key.toLowerCase()==="a"){
+  e.preventDefault();
+  if(!keys.left){movePlayer(-1);keys.left=true;}
+ }
+ if(e.key==="ArrowRight"||e.key.toLowerCase()==="d"){
+  e.preventDefault();
+  if(!keys.right){movePlayer(1);keys.right=true;}
+ }
+});
+
+document.addEventListener("keyup",e=>{
+ if(e.key==="ArrowLeft"||e.key.toLowerCase()==="a")keys.left=false;
+ if(e.key==="ArrowRight"||e.key.toLowerCase()==="d")keys.right=false;
+});
+
+function bindControl(id,direction){
+ const btn=document.getElementById(id);
+ btn.addEventListener("pointerdown",e=>{
+  e.preventDefault();
+  movePlayer(direction);
+ });
+}
+
+bindControl("leftBtn",-1);
+bindControl("rightBtn",1);
+
+function loop(time){
+ if(!running||paused)return;
+
+ if(!lastTime)lastTime=time;
+ const delta=Math.min((time-lastTime)/16.67,2);
+ lastTime=time;
+
+ speed=Math.min(1+Math.floor(score/100)*0.25,4);
+ const roadSpeed=5+speed*2;
+
+ roadOffset=(roadOffset+roadSpeed*delta)%100;
+ spawnTimer+=delta;
+
+ const spawnInterval=Math.max(34,85-speed*12);
+ if(spawnTimer>spawnInterval){
+  spawnTimer=0;
+  spawnEnemy();
+ }
+
+ enemies.forEach(car=>{
+  car.y+=roadSpeed*delta;
+
+  if(!car.passed&&car.y>player.y+55){
+   car.passed=true;
+   score+=10;
+  }
+
+  if(collision(player,car)){
+   endGame();
+  }
+ });
+
+ if(!running)return;
+
+ enemies=enemies.filter(car=>car.y<H+70);
+ score+=0.025*delta;
+
+ updateStats();
+ drawGame();
+
+ animationId=requestAnimationFrame(loop);
+}
+
+drawStartScreen();
+</script>
+</body>
+</html>

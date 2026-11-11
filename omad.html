@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLAYNEX - Omad Shou</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+ min-height:100vh;
+ background:radial-gradient(circle at top,#39205f,#090d1b 75%);
+ color:white;font-family:Arial,sans-serif;
+ text-align:center;padding:18px 12px 35px
+}
+header{
+ max-width:500px;margin:auto;padding:17px;
+ background:#171e35;border:1px solid #4a397d;border-radius:17px
+}
+.logo{color:#6de7ff;font-size:25px;font-weight:900;letter-spacing:2px}
+header p{color:#c5c9e8;margin-top:7px;font-size:13px}
+h1{color:#ffd76a;margin:25px 0 8px;font-size:29px}
+.subtitle{color:#c5c9e8;margin-bottom:25px;font-size:14px}
+.wheel-area{
+ position:relative;width:min(90vw,380px);aspect-ratio:1;
+ margin:0 auto 25px;display:flex;align-items:center;justify-content:center
+}
+.pointer{
+ position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+ z-index:5;width:0;height:0;
+ border-left:19px solid transparent;
+ border-right:19px solid transparent;
+ border-top:38px solid white;
+ filter:drop-shadow(0 3px 5px #000)
+}
+.wheel-frame{
+ width:100%;height:100%;padding:10px;border-radius:50%;
+ background:linear-gradient(135deg,#fff0a5,#d79b20,#fff0a5);
+ box-shadow:0 0 25px #e8b83c66,0 0 55px #7e48ff44
+}
+#wheel{
+ display:block;width:100%;height:100%;border-radius:50%;
+ transform:rotate(0deg);
+ transition:transform 5s cubic-bezier(.12,.75,.12,1)
+}
+.spin-btn{
+ width:min(90%,330px);padding:16px;border:none;border-radius:13px;
+ color:#17152a;background:linear-gradient(90deg,#ffe47b,#ffb52e);
+ font-size:18px;font-weight:900;cursor:pointer;
+ box-shadow:0 5px 0 #a96a0c
+}
+.spin-btn:disabled{opacity:.6;cursor:not-allowed}
+.result{
+ display:none;max-width:420px;margin:25px auto 0;padding:22px;
+ border-radius:17px;background:#171e35;border:1px solid #e6bd54
+}
+.gift{font-size:58px;margin-bottom:12px}
+.result h2{color:#ffd76a;margin-bottom:10px;font-size:24px}
+.result p{color:#d2d8ef;line-height:1.6}
+.back{
+ display:inline-block;margin-top:25px;color:#6de7ff;
+ text-decoration:none;font-weight:bold
+}
+.rules{
+ max-width:420px;margin:25px auto 0;padding:16px;
+ border-radius:13px;background:#171e35;color:#c5c9e8;
+ font-size:13px;line-height:1.8
+}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="logo">PLAYNEX</div>
+ <p>O‘yinlar olamiga xush kelibsiz! 🎮</p>
+</header>
+
+<h1>🎡 OMAD SHOU</h1>
+<p class="subtitle">G‘ildirakni aylantir va omadingni sinab ko‘r!</p>
+
+<div class="wheel-area">
+ <div class="pointer"></div>
+ <div class="wheel-frame">
+  <canvas id="wheel" width="600" height="600"></canvas>
+ </div>
+</div>
+
+<button class="spin-btn" id="spinBtn" onclick="spinWheel()">
+ 🎯 AYLANТIRISH
+</button>
+
+<div class="result" id="result">
+ <div class="gift" id="giftEmoji">🎁</div>
+ <h2 id="giftName"></h2>
+ <p id="giftText"></p>
+ <button class="spin-btn" style="margin-top:18px"
+ onclick="closeResult()">Yana o‘ynash</button>
+</div>
+
+<div class="rules">
+ 🎁 Jami 13 ta sovrin!<br>
+ 🚐 1, 5, 10 va 15 ta Damas<br>
+ 🕋 2 kishilik Umra safari<br>
+ 🚘 Captiva, Lacetti va Epica<br>
+ 💵 100 mingdan 10 million so‘mgacha<br>
+ 🎮 Sovrinlar hozircha virtual.
+</div>
+
+<a class="back" href="index.html">⬅ PLAYNEX bosh menyusiga</a>
+
+<script>
+const canvas=document.getElementById("wheel");
+const ctx=canvas.getContext("2d");
+
+const prizes=[
+ {emoji:"🚐",name:"1 TA DAMAS",color:"#2763bd"},
+ {emoji:"🚐",name:"5 TA DAMAS",color:"#d04c58"},
+ {emoji:"🚐",name:"10 TA DAMAS",color:"#268b70"},
+ {emoji:"🚐",name:"15 TA DAMAS",color:"#8249bc"},
+ {emoji:"🕋",name:"2 KISHILIK UMRA",color:"#b67a22"},
+ {emoji:"🚘",name:"CAPTIVA",color:"#2763bd"},
+ {emoji:"🚘",name:"LACETTI",color:"#d04c58"},
+ {emoji:"🚘",name:"EPICA",color:"#268b70"},
+ {emoji:"💵",name:"100 000 SO‘M",color:"#8249bc"},
+ {emoji:"💵",name:"500 000 SO‘M",color:"#b67a22"},
+ {emoji:"💵",name:"1 000 000 SO‘M",color:"#2763bd"},
+ {emoji:"💵",name:"5 000 000 SO‘M",color:"#d04c58"},
+ {emoji:"💵",name:"10 000 000 SO‘M",color:"#268b70"}
+];
+
+const slice=360/prizes.length;
+let rotation=0;
+let spinning=false;
+
+function drawWheel(){
+ const center=300,radius=285;
+ ctx.clearRect(0,0,600,600);
+
+ prizes.forEach((prize,i)=>{
+  const start=(i*slice-90)*Math.PI/180;
+  const end=((i+1)*slice-90)*Math.PI/180;
+
+  ctx.beginPath();
+  ctx.moveTo(center,center);
+  ctx.arc(center,center,radius,start,end);
+  ctx.closePath();
+  ctx.fillStyle=prize.color;
+  ctx.fill();
+  ctx.strokeStyle="#ffe7a0";
+  ctx.lineWidth=3;
+  ctx.stroke();
+
+  const middle=(start+end)/2;
+  ctx.save();
+  ctx.translate(center,center);
+  ctx.rotate(middle);
+  ctx.textAlign="center";
+  ctx.fillStyle="white";
+  ctx.font="bold 34px Arial";
+  ctx.fillText(prize.emoji,210,-7);
+  ctx.font="bold 14px Arial";
+  ctx.fillText(prize.name,210,19);
+  ctx.restore();
+ });
+
+ ctx.beginPath();
+ ctx.arc(center,center,58,0,Math.PI*2);
+ ctx.fillStyle="#fff0a5";
+ ctx.fill();
+ ctx.strokeStyle="#9d6a13";
+ ctx.lineWidth=7;
+ ctx.stroke();
+ ctx.fillStyle="#29204d";
+ ctx.font="bold 24px Arial";
+ ctx.textAlign="center";
+ ctx.textBaseline="middle";
+ ctx.fillText("OMAD",center,center);
+}
+
+drawWheel();
+
+function spinWheel(){
+ if(spinning)return;
+ spinning=true;
+
+ const btn=document.getElementById("spinBtn");
+ btn.disabled=true;
+ btn.textContent="🎡 AYLANMOQDA...";
+
+ const selected=Math.floor(Math.random()*prizes.length);
+ const middleAngle=selected*slice+slice/2;
+ const target=(360-middleAngle)%360;
+ const current=((rotation%360)+360)%360;
+ const extra=(target-current+360)%360;
+
+ rotation+=360*7+extra;
+ canvas.style.transform=`rotate(${rotation}deg)`;
+
+ setTimeout(()=>{
+  showResult(selected);
+  spinning=false;
+  btn.disabled=false;
+  btn.textContent="🎯 YANA AYLANТIRISH";
+ },5100);
+}
+
+function showResult(index){
+ const prize=prizes[index];
+
+ document.getElementById("giftEmoji").textContent=prize.emoji;
+ document.getElementById("giftName").textContent=prize.name;
+ document.getElementById("giftText").textContent=
+ "Tabriklaymiz! Sizning virtual sovg‘angiz: "+
+ prize.name+" 🎉";
+
+ document.getElementById("result").style.display="block";
+ document.getElementById("result").scrollIntoView({
+  behavior:"smooth",block:"center"
+ });
+}
+
+function closeResult(){
+ document.getElementById("result").style.display="none";
+}
+</script>
+</body>
+</html>

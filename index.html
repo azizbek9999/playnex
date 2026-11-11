@@ -1,0 +1,263 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLAYNEX</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #090d1b;
+    color: white;
+    font-family: Arial, sans-serif;
+    padding-bottom: 90px;
+}
+
+header {
+    padding: 25px 18px;
+    background: linear-gradient(135deg, #171e3d, #25205c);
+    border-bottom: 1px solid #343c69;
+}
+
+.logo {
+    font-size: 30px;
+    font-weight: 900;
+    color: #6de7ff;
+    letter-spacing: 2px;
+}
+
+header p {
+    color: #b9c5e9;
+    margin-top: 8px;
+}
+
+.container {
+    padding: 20px 15px;
+}
+
+h2 {
+    margin-bottom: 18px;
+    font-size: 21px;
+}
+
+.games {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 13px;
+}
+
+.game {
+    background: #171e35;
+    border: 1px solid #303c60;
+    border-radius: 17px;
+    padding: 17px 12px;
+    text-align: center;
+}
+
+.game .emoji {
+    font-size: 42px;
+    margin-bottom: 12px;
+}
+
+.game h3 {
+    font-size: 16px;
+    margin-bottom: 13px;
+}
+
+.game button {
+    background: linear-gradient(90deg, #00bde8, #6557ff);
+    border: none;
+    border-radius: 9px;
+    padding: 10px;
+    width: 100%;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.soon {
+    color: #9ca8ca;
+    font-size: 12px;
+    margin-top: 9px;
+}
+
+.info {
+    background: #171e35;
+    border-radius: 15px;
+    padding: 18px;
+    margin-top: 22px;
+    color: #c5d0ef;
+    line-height: 1.6;
+}
+
+.bottom-menu {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #12182b;
+    border-top: 1px solid #303b5c;
+    display: flex;
+    justify-content: space-around;
+    padding: 13px 4px;
+}
+
+.bottom-menu button {
+    background: none;
+    border: none;
+    color: #aab6d7;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.bottom-menu button span {
+    display: block;
+    font-size: 23px;
+    margin-bottom: 5px;
+}
+
+.bottom-menu button.active {
+    color: #60dcff;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">PLAYNEX</div>
+    <p>O‘yinlar olamiga xush kelibsiz! 🎮</p>
+</header>
+
+<div class="container" id="main"></div>
+
+<div class="bottom-menu">
+    <button class="active" onclick="showMenu('games', this)">
+        <span>🎮</span>O‘yinlar
+    </button>
+
+    <button onclick="showMenu('rating', this)">
+        <span>🏆</span>Reyting
+    </button>
+
+    <button onclick="showMenu('bonus', this)">
+        <span>🎁</span>Bonuslar
+    </button>
+
+    <button onclick="showMenu('friends', this)">
+        <span>👥</span>Do‘stlar
+    </button>
+</div>
+
+<script>
+const main = document.getElementById("main");
+
+function showGames() {
+    main.innerHTML = `
+        <h2>🎮 O‘yinlar</h2>
+
+        <div class="games">
+
+            <div class="game">
+                <div class="emoji">🎁</div>
+                <h3>Boriga Baraka</h3>
+                <button onclick="location.href='boriga.html'">
+                    O‘ynash
+                </button>
+            </div>
+
+            <div class="game">
+                <div class="emoji">🎡</div>
+                <h3>Omad Shou</h3>
+                <button onclick="location.href='omad.html'">O‘ynash</button>
+                <div class="soon">Tez orada</div>
+            </div>
+
+            <div class="game">
+                <div class="emoji">🧠</div>
+                <h3>Millioner</h3>
+                <button onclick="location.href='millioner.html'">
+                    O‘ynash
+                </button>
+            </div>
+
+            <div class="game">
+                <div class="emoji">🎱</div>
+                <h3>Bilyard</h3>
+                <button onclick="location.href='bilyard.html'">O‘ynash</button>
+                <div class="soon">Tez orada</div>
+            </div>
+
+            <div class="game">
+                <div class="emoji">🏎️</div>
+                <h3>Avtopoyga</h3>
+                <button onclick="location.href='avtopoyga.html'">O‘ynash</button>
+                <div class="soon">Tez orada</div>
+            </div>
+
+        </div>
+
+        <div class="info">
+            <h3>🔥 PLAYNEX</h3>
+            Bu yerda seni qiziqarli o‘yinlar,
+            sovrinlar va musobaqalar kutmoqda!
+        </div>
+    `;
+}
+
+function soon() {
+    alert("Bu o‘yin tez orada qo‘shiladi! 🔥");
+}
+
+function showMenu(menu, button) {
+    document.querySelectorAll(".bottom-menu button")
+        .forEach(btn => btn.classList.remove("active"));
+
+    button.classList.add("active");
+
+    if (menu === "games") {
+        showGames();
+    }
+
+    if (menu === "rating") {
+        main.innerHTML = `
+            <h2>🏆 Reyting</h2>
+            <div class="info">
+                Hozircha reytingda o‘yinchilar yo‘q.
+                Birinchi bo‘lib o‘yna va reytingga kir!
+            </div>
+        `;
+    }
+
+    if (menu === "bonus") {
+        main.innerHTML = `
+            <h2>🎁 Bonuslar</h2>
+            <div class="info">
+                PLAYNEX bonuslari tez orada ishga tushadi!
+            </div>
+        `;
+    }
+
+    if (menu === "friends") {
+        main.innerHTML = `
+            <h2>👥 Do‘stlar</h2>
+            <div class="info">
+                Do‘stlarni taklif qilish imkoniyati
+                tez orada qo‘shiladi!
+            </div>
+        `;
+    }
+}
+
+showGames();
+</script>
+
+</body>
+</html>

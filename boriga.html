@@ -1,0 +1,450 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLAYNEX — Boriga Baraka</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ background:radial-gradient(circle at top,#39205f,#10091f 55%,#080510);
+ color:#ffe9b5;font-family:Arial,sans-serif;min-height:100vh;
+}
+header{
+ height:62px;background:#160d2d;border-bottom:2px solid #d8a83e;
+ display:flex;align-items:center;justify-content:space-between;
+ padding:0 18px;position:sticky;top:0;z-index:5;
+}
+header b{font-size:25px;color:white;letter-spacing:2px}
+header button{background:none;border:0;color:white;font-size:30px;cursor:pointer}
+.notice{
+ text-align:center;padding:13px 8px;
+ background:linear-gradient(90deg,#a66b13,#ffe18a,#a66b13);
+ color:#24132a;font-weight:900;font-size:15px;
+}
+.container{max-width:1150px;margin:auto;padding:12px}
+.game{
+ display:grid;grid-template-columns:32% 68%;gap:10px;
+ background:#1b1032;border:2px solid #d9a83e;border-radius:18px;
+ padding:10px;box-shadow:0 0 30px #a35bff35;
+}
+.left{display:flex;flex-direction:column;gap:10px;min-width:0}
+.host{
+ min-height:300px;position:relative;overflow:hidden;
+ border:2px solid #e6bd62;border-radius:14px;
+ background:
+ radial-gradient(circle at 50% 25%,#8d48b8,#271346 55%,#100b25);
+ display:flex;flex-direction:column;align-items:center;
+ justify-content:space-around;text-align:center;padding:12px;
+}
+.host:before,.host:after{
+ content:"✦";position:absolute;color:#ffe48a;font-size:28px;
+ animation:twinkle 1.5s infinite alternate;
+}
+.host:before{top:15px;left:18px}
+.host:after{right:18px;bottom:25px}
+.host h1{
+ font-family:Georgia,serif;font-size:clamp(28px,4vw,43px);
+ color:#ffe28a;text-shadow:0 3px 0 #8b4a08,0 0 18px #ffc34d;
+ z-index:1;
+}
+.presenter{
+ font-size:100px;filter:drop-shadow(0 8px 10px #0008);
+ animation:hostMove 3s ease-in-out infinite;
+}
+.host small{color:#ffe7ae;font-weight:bold}
+.you{
+ background:linear-gradient(#fff0ae,#e5a933);
+ color:#28142d;border-radius:25px;padding:9px 27px;
+ font-weight:bold;box-shadow:0 0 15px #ffda72;
+}
+.prizes{
+ background:#0b2827;border:1px solid #b78a3c;
+ border-radius:12px;padding:10px;
+}
+.prizes h3{text-align:center;margin-bottom:9px;color:#ffdc83}
+.prize-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.prize-item{
+ background:linear-gradient(135deg,#174b42,#102b2c);
+ border:1px solid #98783e;border-radius:7px;
+ padding:8px 3px;text-align:center;font-size:11px;
+ overflow-wrap:anywhere;
+}
+.prize-item.out{opacity:.35;text-decoration:line-through}
+.right{
+ min-width:0;background:linear-gradient(145deg,#1a1035,#100e26);
+ border:2px solid #c99b43;border-radius:14px;padding:11px;
+}
+.game-head{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:7px;margin-bottom:12px;
+}
+.game-head h2{font-size:clamp(17px,2.5vw,25px);color:#fff0c4}
+.counter{
+ background:#28174c;border:1px solid #e5bb58;
+ padding:8px 11px;border-radius:22px;font-size:12px;
+ white-space:nowrap;color:#ffe18b;font-weight:bold;
+}
+.boxes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.box{
+ aspect-ratio:1.05;min-width:0;cursor:pointer;
+ border:1px solid #ffd56c;border-radius:10px;
+ background:linear-gradient(145deg,#733a18,#32163d 65%,#170e29);
+ color:#ffe9ae;display:flex;flex-direction:column;
+ justify-content:center;align-items:center;gap:3px;
+ box-shadow:inset 0 0 14px #ffbb4730,0 3px 8px #0008;
+ transition:transform .2s,box-shadow .2s;
+}
+.box:hover:not(:disabled){
+ transform:translateY(-4px) scale(1.04);
+ box-shadow:0 0 18px #ffc34d;
+}
+.box .chest{font-size:clamp(24px,3.5vw,38px)}
+.box span:last-child{font-size:11px;font-weight:bold}
+.box:disabled{cursor:default}
+.box.opened{
+ background:linear-gradient(145deg,#59401a,#281a3d);
+ animation:openBox .55s ease;
+ border-color:#ffe28b;
+}
+.box.opened .chest{font-size:clamp(23px,3vw,34px)}
+.call{
+ margin-top:12px;background:linear-gradient(90deg,#37166b,#5b2490,#37166b);
+ border:2px solid #d9a8ff;border-radius:30px;
+ padding:12px;text-align:center;font-weight:bold;
+ box-shadow:0 0 15px #a64aff55;
+}
+.status{text-align:center;font-size:13px;min-height:27px;padding-top:10px}
+footer{text-align:center;padding:18px;color:#a99ac5}
+.modal-bg{
+ position:fixed;inset:0;background:#080411ed;z-index:10;
+ display:flex;align-items:center;justify-content:center;padding:15px;
+}
+.modal{
+ width:100%;max-width:430px;
+ background:linear-gradient(145deg,#402067,#17102c);
+ border:2px solid #e7bd61;border-radius:20px;
+ padding:23px 18px;text-align:center;
+ box-shadow:0 0 35px #b35cff55;
+ animation:modalIn .3s ease;
+}
+.modal h2{color:#ffe19a;margin-bottom:12px}
+.modal p{font-size:14px;line-height:1.7;margin:13px 0}
+.modal button{
+ background:linear-gradient(#ffe8a0,#e4a735);
+ color:#28132a;border:0;border-radius:10px;
+ padding:13px 20px;font-weight:900;cursor:pointer;
+ margin:5px;font-size:13px;
+}
+.hidden{display:none!important}
+.gift-icon{font-size:68px;margin:12px;animation:giftPop .7s infinite alternate}
+.disclaimer{font-size:10px;color:#c6b6d9;margin-top:9px}
+.confetti{
+ position:fixed;top:-20px;z-index:20;pointer-events:none;
+ animation:fall 2.5s linear forwards;font-size:22px;
+}
+.sound-btn{
+ background:#2d194d;color:#ffe3a0;border:1px solid #c99b43;
+ border-radius:20px;padding:7px 12px;cursor:pointer;
+}
+@keyframes twinkle{from{opacity:.3;transform:scale(.7)}to{opacity:1;transform:scale(1.3)}}
+@keyframes hostMove{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-7px) rotate(2deg)}}
+@keyframes openBox{0%{transform:scale(.7) rotate(-8deg)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes modalIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes giftPop{from{transform:scale(.9)}to{transform:scale(1.12)}}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+@media(max-width:650px){
+ .container{padding:6px}
+ .game{grid-template-columns:1fr;padding:6px;gap:8px}
+ .left{display:grid;grid-template-columns:1fr 1.15fr;gap:6px}
+ .host{min-height:190px;padding:7px}
+ .host h1{font-size:25px}
+ .presenter{font-size:65px}
+ .you{font-size:12px;padding:7px 13px}
+ .prizes{padding:7px 5px}
+ .prizes h3{font-size:12px}
+ .prize-item{font-size:9px;padding:7px 2px}
+ .right{padding:7px}
+ .boxes{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+ .box{aspect-ratio:1.15}
+ .box .chest{font-size:27px}
+ .game-head h2{font-size:17px}
+ .counter{font-size:10px;padding:7px}
+}
+</style>
+</head>
+<body>
+
+<header>
+<button onclick="location.href='index.html'">‹</button>
+<b>👑 PLAYNEX</b>
+<button onclick="location.href='index.html'">×</button>
+</header>
+
+<div class="notice">🎁 BORIGA BARAKA — OMADINGIZNI SINAB KO‘RING!</div>
+
+<div class="container">
+<div class="game">
+ <div class="left">
+  <div class="host">
+   <h1>👑 Boriga<br>Baraka</h1>
+   <div class="presenter">🎩</div>
+   <small>🎙 PLAYNEX boshlovchisi</small>
+   <div class="you">👤 SIZ</div>
+   <button class="sound-btn" onclick="hostSpeak('Assalomu alaykum! Boriga Baraka o‘yiniga xush kelibsiz! Omadingizni sinab ko‘ring!')">🔊 Boshlovchini eshitish</button>
+  </div>
+  <div class="prizes">
+   <h3>🎁 Qolgan sovg‘alar</h3>
+   <div class="prize-list" id="prizeList"></div>
+  </div>
+ </div>
+
+ <div class="right">
+  <div class="game-head">
+   <h2>🎁 Qutini tanlang</h2>
+   <div class="counter" id="counter">0/24 ochildi</div>
+  </div>
+  <div class="boxes" id="boxes"></div>
+  <div class="call" id="call">📞 Keyingi qo‘ng‘iroqqacha 6 ta quti</div>
+  <div class="status" id="status">Omadingizni sinab ko‘ring!</div>
+ </div>
+</div>
+</div>
+
+<footer>© PLAYNEX — Barcha huquqlar himoyalangan</footer>
+
+<div class="modal-bg" id="intro">
+ <div class="modal">
+  <h2>🎁 BORIGA BARAKA!</h2>
+  <div class="gift-icon">🎁🚗🕋</div>
+  <p>Assalomu alaykum! 24 ta sirli sandiq sizni kutmoqda. Qutilardan birini tanlang va qanday sovg‘a chiqishini bilib oling!</p>
+  <button onclick="startGame()">🎮 O‘YINNI BOSHLASH</button>
+  <div class="disclaimer">Sovrinlar hozircha o‘yin ichidagi namunaviy sovg‘alardir.</div>
+ </div>
+</div>
+
+<div class="modal-bg hidden" id="phoneModal">
+ <div class="modal">
+  <h2>📞 Boshlovchidan qo‘ng‘iroq!</h2>
+  <div class="gift-icon">📱</div>
+  <p id="phoneText"></p>
+  <button onclick="continueGame()">DAVOM ETAMAN</button>
+  <button onclick="finishGame()">YAKUNLASH</button>
+ </div>
+</div>
+
+<div class="modal-bg hidden" id="giftModal">
+ <div class="modal">
+  <h2>🎉 SANDIQ OCHILDI!</h2>
+  <div class="gift-icon" id="giftIcon">🎁</div>
+  <p id="giftText"></p>
+  <button onclick="closeGift()">DAVOM ETISH</button>
+ </div>
+</div>
+
+<div class="modal-bg hidden" id="resultModal">
+ <div class="modal">
+  <h2>🏆 O‘YIN YAKUNLANDI!</h2>
+  <div class="gift-icon">🎉🎁🏆</div>
+  <p id="resultText"></p>
+  <button onclick="restartGame()">🔁 QAYTA O‘YNASH</button>
+  <button onclick="location.href='index.html'">MENYUGA QAYTISH</button>
+  <div class="disclaimer">Sovrinlar namunaviy, haqiqiy yutuq yoki yetkazib berish va’dasi emas.</div>
+ </div>
+</div>
+
+<script>
+const gifts=[
+ {name:"Chevrolet Cobalt",icon:"🚗",count:1},
+ {name:"Chevrolet Damas",icon:"🚐",count:1},
+ {name:"BYD avtomobil",icon:"🚙",count:1},
+ {name:"Umra safariga yo‘llanma",icon:"🕋",count:1},
+ {name:"iPhone",icon:"📱",count:2},
+ {name:"Samsung televizor",icon:"📺",count:2},
+ {name:"Noutbuk",icon:"💻",count:2},
+ {name:"Muzlatkich",icon:"🧊",count:2},
+ {name:"Kir yuvish mashinasi",icon:"🫧",count:2},
+ {name:"Velosiped",icon:"🚲",count:2},
+ {name:"Smart soat",icon:"⌚",count:2},
+ {name:"Sovg‘a to‘plami",icon:"🎁",count:2},
+ {name:"Oltin sovg‘a",icon:"🏆",count:1},
+ {name:"Qayta o‘ynash",icon:"🔁",count:3}
+];
+
+let shuffled=[],opened=[],totalOpened=0,waitingCall=false;
+let audioContext=null;
+
+function shuffle(arr){
+ let a=[...arr];
+ for(let i=a.length-1;i>0;i--){
+  let j=Math.floor(Math.random()*(i+1));
+  [a[i],a[j]]=[a[j],a[i]];
+ }
+ return a;
+}
+
+function sound(freq=550,duration=.13){
+ try{
+  audioContext=audioContext||new (window.AudioContext||window.webkitAudioContext)();
+  const osc=audioContext.createOscillator();
+  const gain=audioContext.createGain();
+  osc.connect(gain);gain.connect(audioContext.destination);
+  osc.frequency.value=freq;
+  osc.type="sine";
+  gain.gain.setValueAtTime(.12,audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+duration);
+  osc.start();osc.stop(audioContext.currentTime+duration);
+ }catch(e){}
+}
+
+function hostSpeak(message){
+ if(!("speechSynthesis" in window)){
+  document.getElementById("status").textContent="Ovozli nutq bu brauzerda ishlamaydi.";
+  return;
+ }
+ speechSynthesis.cancel();
+ const utter=new SpeechSynthesisUtterance(message);
+ utter.lang="uz-UZ";
+ utter.rate=.9;
+ utter.pitch=1;
+ const voices=speechSynthesis.getVoices();
+ const uzVoice=voices.find(v=>v.lang.toLowerCase().startsWith("uz"));
+ if(uzVoice)utter.voice=uzVoice;
+ speechSynthesis.speak(utter);
+}
+
+function confetti(){
+ const symbols=["✨","🎉","⭐","🎊","💛"];
+ for(let i=0;i<24;i++){
+  const el=document.createElement("div");
+  el.className="confetti";
+  el.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+  el.style.left=Math.random()*100+"vw";
+  el.style.animationDelay=Math.random()*.8+"s";
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+ }
+}
+
+function startGame(){
+ document.getElementById("intro").classList.add("hidden");
+ restartData();
+ sound(700);
+ hostSpeak("Ajoyib! O‘yinimiz boshlandi. Birinchi sandiqni tanlang. Omad sizga yor bo‘lsin!");
+}
+
+function restartData(){
+ let all=[];
+ gifts.forEach(g=>{
+  for(let i=0;i<g.count;i++)all.push({...g});
+ });
+ shuffled=shuffle(all);
+ opened=[];
+ totalOpened=0;
+ waitingCall=false;
+ drawBoxes();
+ update();
+ document.getElementById("status").textContent="Sandiqlardan birini tanlang!";
+}
+
+function drawBoxes(){
+ const area=document.getElementById("boxes");
+ area.innerHTML="";
+ for(let i=0;i<24;i++){
+  const b=document.createElement("button");
+  b.className="box";
+  b.innerHTML='<span class="chest">🎁</span><span>'+(i+1)+'</span>';
+  b.onclick=()=>openBox(i,b);
+  area.appendChild(b);
+ }
+}
+
+function openBox(i,button){
+ if(opened.includes(i)||waitingCall)return;
+ opened.push(i);
+ totalOpened++;
+ const gift=shuffled[i];
+
+ button.disabled=true;
+ button.classList.add("opened");
+ button.innerHTML='<span class="chest">'+gift.icon+'</span><span>Ochildi</span>';
+
+ sound(780,.2);
+ setTimeout(()=>sound(980,.2),120);
+
+ document.getElementById("giftIcon").textContent=gift.icon;
+ document.getElementById("giftText").textContent=
+ "Sizning sandig‘ingizdan: "+gift.name+" chiqdi!";
+ document.getElementById("giftModal").classList.remove("hidden");
+
+ update();
+}
+
+function closeGift(){
+ document.getElementById("giftModal").classList.add("hidden");
+ if(totalOpened===24){
+  finishGame();
+  return;
+ }
+ if(totalOpened%6===0){
+  waitingCall=true;
+  document.getElementById("phoneText").textContent=
+   "Ajoyib! "+totalOpened+" ta sandiq ochildi. Boshlovchi sizdan so‘raydi: o‘yinni davom ettirasizmi?";
+  document.getElementById("phoneModal").classList.remove("hidden");
+  sound(600,.3);
+  hostSpeak("Siz juda yaxshi o‘ynayapsiz! Davom etamizmi?");
+ }else{
+  document.getElementById("status").textContent="Yana bir sandiqni tanlang!";
+ }
+}
+
+function update(){
+ document.getElementById("counter").textContent=totalOpened+"/24 ochildi";
+ let left=6-(totalOpened%6);
+ if(totalOpened===24)left=0;
+ document.getElementById("call").textContent=
+  totalOpened===24?"🏆 Barcha sandiqlar ochildi!":
+  "📞 Keyingi qo‘ng‘iroqqacha "+left+" ta quti";
+
+ const list=document.getElementById("prizeList");
+ list.innerHTML="";
+ gifts.forEach(g=>{
+  const remaining=shuffled.filter(x=>x.name===g.name).length-
+   opened.filter(i=>shuffled[i].name===g.name).length;
+  const div=document.createElement("div");
+  div.className="prize-item"+(remaining<=0?" out":"");
+  div.textContent=g.icon+" "+g.name+" × "+Math.max(0,remaining);
+  list.appendChild(div);
+ });
+}
+
+function continueGame(){
+ waitingCall=false;
+ document.getElementById("phoneModal").classList.add("hidden");
+ document.getElementById("status").textContent="Yana sandiq tanlang!";
+ hostSpeak("Davom etamiz! Keyingi sandiqni tanlang!");
+}
+
+function finishGame(){
+ waitingCall=true;
+ document.getElementById("phoneModal").classList.add("hidden");
+ document.getElementById("giftModal").classList.add("hidden");
+ document.getElementById("resultText").textContent=
+  "Siz "+totalOpened+" ta sandiq ochdingiz. PLAYNEX bilan o‘ynaganingiz uchun rahmat!";
+ document.getElementById("resultModal").classList.remove("hidden");
+ confetti();
+ sound(900,.4);
+ hostSpeak("O‘yin yakunlandi! Ishtirokingiz uchun rahmat!");
+}
+
+function restartGame(){
+ document.getElementById("resultModal").classList.add("hidden");
+ restartData();
+ hostSpeak("Yangi o‘yin boshlandi! Omad tilaymiz!");
+}
+
+speechSynthesis?.getVoices?.();
+</script>
+</body>
+</html>
