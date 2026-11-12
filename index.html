@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PLAYNEX</title>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
 * {
     margin: 0;
@@ -14,32 +16,248 @@
 }
 
 body {
-    background: #090d1b;
+    background: #090719;
     color: white;
     font-family: Arial, sans-serif;
     padding-bottom: 90px;
+    overflow-x: hidden;
+}
+
+/* KIRISH EKRANI */
+.splash {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background:
+      radial-gradient(circle at center, #382064 0%, #130d2b 48%, #080615 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    overflow: hidden;
+    transition: opacity .8s, visibility .8s;
+}
+
+.splash.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.stars {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(#fff 1px, transparent 1px),
+      radial-gradient(#e5bb66 1px, transparent 1px);
+    background-size: 65px 65px, 100px 100px;
+    animation: starsMove 15s linear infinite;
+    opacity: .35;
+}
+
+@keyframes starsMove {
+    from { transform: translateY(0); }
+    to { transform: translateY(-100px); }
+}
+
+.splash-logo {
+    font-size: 43px;
+    font-weight: 1000;
+    letter-spacing: 5px;
+    color: #fff0b4;
+    text-shadow: 0 0 15px #e6a83c, 0 0 35px #a45cff;
+    animation: logoGlow 2s infinite alternate;
+    z-index: 2;
+}
+
+@keyframes logoGlow {
+    from { text-shadow: 0 0 10px #e6a83c; }
+    to { text-shadow: 0 0 25px #ffda79, 0 0 50px #9e55ff; }
+}
+
+.subtitle {
+    color: #d8c9f5;
+    margin-top: 10px;
+    letter-spacing: 2px;
+    font-size: 12px;
+    z-index: 2;
+}
+
+/* OLTIN MEDAL */
+.medal-wrap {
+    width: 205px;
+    height: 205px;
+    margin: 35px 0 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    animation: medalFloat 3s ease-in-out infinite;
+}
+
+@keyframes medalFloat {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.medal {
+    width: 155px;
+    height: 155px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 25%, #fff5bc, #e9b84c 35%, #9d5b12 75%, #ffe18a);
+    border: 7px solid #ffdf83;
+    box-shadow:
+      0 0 15px #ffcf55,
+      0 0 40px #c88a28,
+      inset 0 0 15px #fff2b0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    animation: medalSpin 8s ease-in-out infinite;
+}
+
+@keyframes medalSpin {
+    0%, 40%, 100% { transform: rotateY(0deg); }
+    50%, 90% { transform: rotateY(180deg); }
+}
+
+.medal-inner {
+    width: 125px;
+    height: 125px;
+    border: 3px dashed #8e5418;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #653b12;
+    font-weight: 900;
+    text-shadow: 0 1px 1px #fff0ae;
+}
+
+.medal-inner .crown {
+    font-size: 35px;
+}
+
+.medal-inner .founder {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.medal-star {
+    position: absolute;
+    color: #fff0a5;
+    font-size: 23px;
+    animation: sparkle 1.5s infinite alternate;
+}
+
+.medal-star.one { top: 5px; left: 12px; }
+.medal-star.two { top: 25px; right: 0; animation-delay: .5s; }
+.medal-star.three { bottom: 8px; left: 5px; animation-delay: .8s; }
+.medal-star.four { bottom: 15px; right: 8px; animation-delay: .3s; }
+
+@keyframes sparkle {
+    from { opacity: .3; transform: scale(.7); }
+    to { opacity: 1; transform: scale(1.4); }
+}
+
+/* ASOSCHI ISMI */
+.founder-box {
+    z-index: 2;
+    padding: 15px 20px;
+    border: 1px solid rgba(255,207,100,.45);
+    border-radius: 16px;
+    background: rgba(255,255,255,.06);
+    box-shadow: 0 0 25px rgba(255,190,70,.13);
+    animation: founderAppear 2s ease both;
+}
+
+@keyframes founderAppear {
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.founder-label {
+    color: #d9b56c;
+    font-size: 11px;
+    letter-spacing: 4px;
+    margin-bottom: 9px;
+}
+
+.founder-name {
+    font-size: 19px;
+    font-weight: 900;
+    line-height: 1.5;
+    background: linear-gradient(90deg, #fff1a8, #e8a934, #fff9d4, #d99a2e);
+    background-size: 250% auto;
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    animation: goldText 4s linear infinite;
+}
+
+@keyframes goldText {
+    to { background-position: 250% center; }
+}
+
+.founder-caption {
+    color: #cbb9e9;
+    font-size: 11px;
+    margin-top: 7px;
+}
+
+.start-btn {
+    z-index: 2;
+    margin-top: 30px;
+    padding: 16px 55px;
+    border: 1px solid #ffe6a1;
+    border-radius: 40px;
+    color: #38200a;
+    font-size: 17px;
+    font-weight: 900;
+    background: linear-gradient(100deg, #b9771e, #ffe69b, #d79a32);
+    box-shadow: 0 0 20px #c98a34, 0 0 45px #8b50d0;
+    cursor: pointer;
+    animation: buttonPulse 2s infinite;
+}
+
+@keyframes buttonPulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* ASOSIY MENYU */
+#app {
+    display: none;
 }
 
 header {
     padding: 25px 18px;
-    background: linear-gradient(135deg, #171e3d, #25205c);
-    border-bottom: 1px solid #343c69;
+    background: linear-gradient(135deg, #21133d, #151c43);
+    border-bottom: 1px solid #61468b;
 }
 
 .logo {
-    font-size: 30px;
+    font-size: 32px;
     font-weight: 900;
-    color: #6de7ff;
-    letter-spacing: 2px;
+    color: #8cecff;
+    letter-spacing: 3px;
+    text-shadow: 0 0 15px #476bff;
 }
 
 header p {
-    color: #b9c5e9;
+    color: #c9b9ed;
     margin-top: 8px;
+    font-size: 13px;
 }
 
 .container {
-    padding: 20px 15px;
+    padding: 22px 15px;
 }
 
 h2 {
@@ -54,47 +272,50 @@ h2 {
 }
 
 .game {
-    background: #171e35;
-    border: 1px solid #303c60;
-    border-radius: 17px;
-    padding: 17px 12px;
+    background: linear-gradient(145deg, #211a3d, #131c38);
+    border: 1px solid #514276;
+    border-radius: 18px;
+    padding: 18px 12px;
     text-align: center;
+    box-shadow: 0 5px 18px #0005;
+    transition: .25s;
+}
+
+.game:active {
+    transform: scale(.96);
+    box-shadow: 0 0 20px #8858ff;
 }
 
 .game .emoji {
-    font-size: 42px;
+    font-size: 43px;
     margin-bottom: 12px;
+    filter: drop-shadow(0 0 9px #8b6cff);
 }
 
 .game h3 {
-    font-size: 16px;
-    margin-bottom: 13px;
+    font-size: 15px;
+    margin-bottom: 14px;
 }
 
 .game button {
-    background: linear-gradient(90deg, #00bde8, #6557ff);
+    background: linear-gradient(90deg, #00bde8, #7655ff);
     border: none;
-    border-radius: 9px;
-    padding: 10px;
+    border-radius: 10px;
+    padding: 11px;
     width: 100%;
     color: white;
     font-weight: bold;
     cursor: pointer;
 }
 
-.soon {
-    color: #9ca8ca;
-    font-size: 12px;
-    margin-top: 9px;
-}
-
 .info {
-    background: #171e35;
-    border-radius: 15px;
-    padding: 18px;
+    background: linear-gradient(140deg, #20183a, #151d3b);
+    border: 1px solid #514276;
+    border-radius: 16px;
+    padding: 19px;
     margin-top: 22px;
-    color: #c5d0ef;
-    line-height: 1.6;
+    color: #d0c9e9;
+    line-height: 1.7;
 }
 
 .bottom-menu {
@@ -102,17 +323,19 @@ h2 {
     bottom: 0;
     left: 0;
     width: 100%;
-    background: #12182b;
-    border-top: 1px solid #303b5c;
+    background: rgba(16, 14, 37, .97);
+    border-top: 1px solid #514276;
     display: flex;
     justify-content: space-around;
     padding: 13px 4px;
+    z-index: 50;
+    backdrop-filter: blur(12px);
 }
 
 .bottom-menu button {
     background: none;
     border: none;
-    color: #aab6d7;
+    color: #aaa4c9;
     font-size: 12px;
     cursor: pointer;
 }
@@ -124,12 +347,69 @@ h2 {
 }
 
 .bottom-menu button.active {
-    color: #60dcff;
+    color: #80e9ff;
+    text-shadow: 0 0 12px #45bfff;
+}
+
+@media (max-height: 700px) {
+    .medal-wrap {
+        width: 155px;
+        height: 155px;
+        margin: 15px 0;
+    }
+    .medal {
+        width: 125px;
+        height: 125px;
+    }
+    .medal-inner {
+        width: 100px;
+        height: 100px;
+    }
+    .start-btn {
+        margin-top: 18px;
+    }
 }
 </style>
 </head>
 
 <body>
+
+<!-- KIRISH SAHIFASI -->
+<div class="splash" id="splash">
+    <div class="stars"></div>
+
+    <div class="splash-logo">PLAYNEX</div>
+    <div class="subtitle">O‘YINLAR OLAMIGA XUSH KELIBSIZ</div>
+
+    <div class="medal-wrap">
+        <div class="medal-star one">✦</div>
+        <div class="medal-star two">✧</div>
+        <div class="medal-star three">✦</div>
+        <div class="medal-star four">✧</div>
+
+        <div class="medal">
+            <div class="medal-inner">
+                <div class="crown">👑</div>
+                <div class="founder">FOUNDER</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="founder-box">
+        <div class="founder-label">PLAYNEX ASOSCHISI</div>
+        <div class="founder-name">
+            Abdullayev Azizbek<br>Umid o‘g‘li
+        </div>
+        <div class="founder-caption">✦ Asoschi va yaratuvchi ✦</div>
+    </div>
+
+    <button class="start-btn" onclick="startApp()">
+        BOSHLASH ▶
+    </button>
+</div>
+
+<!-- ASOSIY ILOVA -->
+<div id="app">
 
 <header>
     <div class="logo">PLAYNEX</div>
@@ -156,8 +436,23 @@ h2 {
     </button>
 </div>
 
+</div>
+
 <script>
+const tg = window.Telegram?.WebApp;
+
+if (tg) {
+    tg.ready();
+    tg.expand();
+}
+
 const main = document.getElementById("main");
+
+function startApp() {
+    document.getElementById("splash").classList.add("hide");
+    document.getElementById("app").style.display = "block";
+    showGames();
+}
 
 function showGames() {
     main.innerHTML = `
@@ -168,38 +463,31 @@ function showGames() {
             <div class="game">
                 <div class="emoji">🎁</div>
                 <h3>Boriga Baraka</h3>
-                <button onclick="location.href='boriga.html'">
-                    O‘ynash
-                </button>
+                <button onclick="location.href='boriga.html'">O‘ynash</button>
             </div>
 
             <div class="game">
                 <div class="emoji">🎡</div>
                 <h3>Omad Shou</h3>
                 <button onclick="location.href='omad.html'">O‘ynash</button>
-                <div class="soon">Tez orada</div>
             </div>
 
             <div class="game">
                 <div class="emoji">🧠</div>
                 <h3>Millioner</h3>
-                <button onclick="location.href='millioner.html'">
-                    O‘ynash
-                </button>
+                <button onclick="location.href='millioner.html'">O‘ynash</button>
             </div>
 
             <div class="game">
                 <div class="emoji">🎱</div>
                 <h3>Bilyard</h3>
                 <button onclick="location.href='bilyard.html'">O‘ynash</button>
-                <div class="soon">Tez orada</div>
             </div>
 
             <div class="game">
                 <div class="emoji">🏎️</div>
                 <h3>Avtopoyga</h3>
                 <button onclick="location.href='avtopoyga.html'">O‘ynash</button>
-                <div class="soon">Tez orada</div>
             </div>
 
         </div>
@@ -208,12 +496,10 @@ function showGames() {
             <h3>🔥 PLAYNEX</h3>
             Bu yerda seni qiziqarli o‘yinlar,
             sovrinlar va musobaqalar kutmoqda!
+            <br><br>
+            👑 Asoschi: Abdullayev Azizbek Umid o‘g‘li
         </div>
     `;
-}
-
-function soon() {
-    alert("Bu o‘yin tez orada qo‘shiladi! 🔥");
 }
 
 function showMenu(menu, button) {
